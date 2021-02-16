@@ -1,45 +1,33 @@
 
-import React, { useState } from 'react'
-const useRecord = (init) => {
-  const [before, setBefore] = useState([]);
-  const [current, setCurrent] = useState(init);
-  const [after, setAfter] = useState([]);
+import React, { useReducer } from 'react'
+import reducer, { initialState } from '../../reducers/colorReducer';
 
-  const undo = () => {
-    setAfter(after => [current, ...after]);
-    setCurrent(before[before.length - 1]);
-    setBefore(before => before.slice(0, -1));
-  };
 
-  const redo = () => {
-    setBefore(before => [...before, current]);
-    setCurrent(after[0]);
-    setAfter(after => after.slice(1));
-  }
 
-  const record = val => {
-    setBefore(before => [...before, current]);
-    setCurrent(val);
-  }
-
-  return {
-    undo,
-    record,
-    redo,
-    current,
-  }
-};
 
 function App() {
-  const { current, undo, redo, record } = useRecord('#FF0000');
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const handleChange = ({ target }) => {
+    dispatch({
+      type: target.id,
+      payload: target.value
+    });
+  };
+
+  const handleClick = ({ target }) => {
+    dispatch({
+      type: target.id,
+    });
+  };
 
   return (
     <>
-      <button onClick={undo}>undo</button>
-      <button onClick={redo}>redo</button>
-      <label htmlFor="color">Color</label>
-      <input id='color' type="color" value={current} onChange={({ target }) => record(target.value)} />
-      <div style={{ backgroundColor: current, width: '10rem', height: '10rem' }}>Display</div>
+      <button id="UNDO" onClick={handleClick}>undo</button>
+      <button id="REDO" onClick={handleClick}>redo</button>
+      <label htmlFor="RECORD">Color</label>
+      <input id='RECORD' type="color" value={state.current} onChange={handleChange} />
+      <div style={{ backgroundColor: state.current, width: '10rem', height: '10rem' }}>Display</div>
     </>
   )
 }
